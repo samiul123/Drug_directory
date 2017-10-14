@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Drug_directory</string>
+    <string name="intro">Hi i am your smart drug directory"\n"I can help you finding your urgent drug information</string>
+    <string name="okayButton">Okay</string>
+    <string name="meet">Have we met before?</string>
+    <string name="yes">Yes</string>
+    <string name="No">No,not yet</string>
+    <string name="Greetings">Nice to meet you."\n"To keep your data safe,we\'ll need to create a personal account</string>
+    <string name="tap">You can always change you answer latter if you want to </string>
+    <string name="getStarted">Okay,lets get started with your email address</string>
+    <string name="emailHint">Type your email address</string>
+    <string name="done">Done</string>
+    <string name="choosePass">Please choose a strong password to keep your data safe</string>
+    <string name="passHint">Type a password</string>
+</resources>
