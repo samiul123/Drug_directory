@@ -5,7 +5,7 @@
     <string name="meet">Have we met before?</string>
     <string name="yes">Yes</string>
     <string name="No">No,not yet</string>
-    <string name="Greetings">Nice to meet you."\n"To keep your data safe,we\'ll need to create a personal account</string>
+    <string name="Greetings">Nice to meet you</string>
     <string name="tap">You can always change you answer latter if you want to </string>
     <string name="getStarted">Okay,lets get started with your email address</string>
     <string name="emailHint">Type your email address</string>
@@ -16,4 +16,12 @@
     <string name="showTermsAndCond">Show terms and Conditions</string>
     <string name="accept">I have read the terms and conditions"\n"And I accept it</string>
     <string name="signUp">Sign up now</string>
+    <string name="close">Close</string>
+    <string name="open">Open</string>
+    <string-array name="query">
+        <item>Furniture</item>
+        <item>Real estate</item>
+        <item>Services</item>
+        <item>Pet care</item>
+    </string-array>
 </resources>

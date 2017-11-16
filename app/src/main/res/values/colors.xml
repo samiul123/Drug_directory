@@ -5,4 +5,10 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorStickyBG">#00897B</color>
     <color name="colorSticky">#074d71</color>
+    <color name="colorPrimaryLight">#FFCDD2</color>
+    <color name="colorPrimaryText">#212121</color>
+    <color name="colorSecondaryText">#727272</color>
+    <color name="colorIcons">#FFFFFF</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorDivider">#B6B6B6</color>
 </resources>
