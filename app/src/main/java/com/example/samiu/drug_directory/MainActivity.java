@@ -1,11 +1,9 @@
 package com.example.samiu.drug_directory;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.provider.ContactsContract;
+import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -16,34 +14,30 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import android.widget.ViewFlipper;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
@@ -53,16 +47,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DatabaseReference suggestionRef;
     private DatabaseReference searchResultsRef;
     private RecyclerView recyclerView;
-    private ProgressDialog mDialogue;
+    private RecyclerView horizontal_recycler_view;
+    public static ProgressDialog mDialogue;
     ArrayList<String> tradeNames = new ArrayList<>();
     ArrayList<String> genericNames = new ArrayList<>();
+    public static ArrayList<Drug> productList = new ArrayList<>();
     public DrawerLayout drawerLayout;
     public ActionBarDrawerToggle toogle;
     public NavigationView navView;
     Toolbar toolbar;
+    private List<UpperView> data;
+    VerticalAdapter verticalAdapter;
     ArrayList<String> names = new ArrayList<>();
     MaterialSearchView materialSearchView;
-    FirebaseRecyclerAdapter<Drug, DrugViewHolder> fireBaseRecyclerAdapter;
+    UpperHorizontalAdapter upperHorizontalAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,13 +73,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+
+        /*horizontal_recycler_view = findViewById(R.id.upper_recycler_view);
+        horizontal_recycler_view.setHasFixedSize(true);
+        horizontal_recycler_view.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        data = fill_with_data();
+        upperHorizontalAdapter = new UpperHorizontalAdapter(data, getApplicationContext());
+        horizontal_recycler_view.setAdapter(upperHorizontalAdapter);
+*/
+
         ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
-        marginLayoutParams.setMargins(0, 110, 0, 0);
+        marginLayoutParams.setMargins(0, 80, 0, 0);
         recyclerView.setLayoutParams(marginLayoutParams);
 
         //Configuring fireBase Database
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("Drugs");
-        suggestionRef = FirebaseDatabase.getInstance().getReference().child("Drugs");
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("drug_table");
+        suggestionRef = FirebaseDatabase.getInstance().getReference().child("drug_table");
         mDatabase.keepSynced(true);
         suggestionRef.keepSynced(true);
         suggestionRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -95,12 +103,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             }
         });
-        searchResultsRef = FirebaseDatabase.getInstance().getReference().child("Drugs");
-
+        searchResultsRef = FirebaseDatabase.getInstance().getReference().child("drug_table");
+        searchResultsRef.keepSynced(true);
         //progress
         mDialogue = new ProgressDialog(this);
 
         materialSearchView = findViewById(R.id.search_view_id);
+        materialSearchView.setVoiceSearch(true);
 
         navView = findViewById(R.id.nav_id);
         navView.setNavigationItemSelectedListener(this);
@@ -116,47 +125,75 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    public List<UpperView> fill_with_data() {
+
+        List<UpperView> data = new ArrayList<>();
+        data.add(new UpperView( R.drawable.a));
+        data.add(new UpperView( R.drawable.b));
+        data.add(new UpperView( R.drawable.c));
+        data.add(new UpperView( R.drawable.d));
+        data.add(new UpperView( R.drawable.e));
+        return data;
+    }
+
+
     private void collectNames(Map<String, Object> value) {
         for(Map.Entry<String, Object> entry: value.entrySet()){
             Map singleName = (Map) entry.getValue();
             names.add((String) singleName.get("tradeName"));
             tradeNames.add((String) singleName.get("tradeName"));
-            names.add((String) singleName.get("genericName"));
-            genericNames.add((String) singleName.get("genericName"));
+            if(!names.contains(singleName.get("genericName"))){
+                names.add((String) singleName.get("genericName"));
+                genericNames.add((String) singleName.get("genericName"));
+            }
         }
+        System.out.println(names);
         String[] suggestions = names.toArray(new String[names.size()]);
         materialSearchView.setSuggestions(suggestions);
     }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MaterialSearchView.REQUEST_VOICE && resultCode == RESULT_OK) {
+            ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            if (matches != null && matches.size() > 0) {
+                String searchWrd = matches.get(0);
+                if (!TextUtils.isEmpty(searchWrd)) {
+                    materialSearchView.setQuery(searchWrd, false);
+                }
+            }
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        verticalAdapter.cleanup();
+    }
 
     private void searchViewCode() {
         materialSearchView.setEllipsize(true);
+        materialSearchView.showVoice(true);
+        materialSearchView.setCursorDrawable(R.drawable.cursor_drawable);
         materialSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(final String query) {
-
+            public boolean onQueryTextSubmit(String query) {
                 if(tradeNames.contains(query)){
-                    final String[] id = new String[1];
-
-                    suggestionRef.orderByChild("tradeName").equalTo(query).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            for(DataSnapshot child: dataSnapshot.getChildren()){
-                                id[0] = child.getKey();
-                                Toast.makeText(getApplicationContext(),query + " " + id[0], Toast.LENGTH_SHORT).show();
-
-                            }
+                    String gen_name;
+                    for(Drug drug: productList){
+                        if(drug.getTradeName().equals(query)){
+                            gen_name = drug.getGenericName();
+                            Query query1 = searchResultsRef.orderByChild("genericName").equalTo(gen_name);
+                            searchGenericResultShow(query1);
                         }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
+                    }
                 }
 
-
+                else if(genericNames.contains(query)){
+                    Query query1 = searchResultsRef.orderByChild("genericName").equalTo(query);
+                    searchGenericResultShow(query1);
+                }
                 return false;
             }
 
@@ -178,29 +215,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mDialogue.setMessage("Please wait...");
-        mDialogue.show();
-        recyclerViewShow(mDatabase);
+    public void searchGenericResultShow(Query query){
+        if(verticalAdapter != null){
+            verticalAdapter.cleanup();
+        }
+        verticalAdapter = new VerticalAdapter(Drug.class,
+                R.layout.durg_list_row,
+                VerticalAdapter.DrugViewHolder.class,
+                query,getApplicationContext(), 0);
+        recyclerView.setAdapter(verticalAdapter);
     }
 
-    public void recyclerViewShow(final DatabaseReference ref){
+    /*public void searchTradeResultShow(String key){
+        DatabaseReference result = searchResultsRef;
+        if(fireBaseRecyclerAdapter != null){
+            fireBaseRecyclerAdapter.cleanup();
+        }
         fireBaseRecyclerAdapter = new FirebaseRecyclerAdapter<Drug, DrugViewHolder>(
                 Drug.class,
                 R.layout.durg_list_row,
                 DrugViewHolder.class,
-                ref
+                result.orderByChild("id").equalTo(key)
         ) {
-
             @Override
             protected void populateViewHolder(DrugViewHolder viewHolder, final Drug model, int position) {
                 viewHolder.setTradeName(model.getTradeName());
                 viewHolder.setGenericName(model.getGenericName());
                 viewHolder.setImage(getApplicationContext(), model.getImage());
-
-                mDialogue.dismiss();
                 viewHolder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -211,28 +252,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 });
 
-
-                Log.d("Finish", "dismiss");
-                ref.orderByChild("tradeName").equalTo(model.getTradeName()).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-//                        Drug drug = dataSnapshot.getValue(Drug.class);
-//                        System.out.println("DRUG:" + drug + " KEY:" + dataSnapshot.getKey() + " Children: " + dataSnapshot.getChildrenCount());
-                        for (DataSnapshot child : dataSnapshot.getChildren()) {
-                            System.out.println("Child key:" + child.getKey());
-                            model.setId(child.getKey());
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
             }
         };
-
         recyclerView.setAdapter(fireBaseRecyclerAdapter);
+    }
+*/
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //mDialogue.setMessage("Please wait...");
+        //mDialogue.show();
+        recyclerViewShow(mDatabase);
+    }
+
+    public void recyclerViewShow(final DatabaseReference ref){
+
+        verticalAdapter = new VerticalAdapter(Drug.class,
+                R.layout.durg_list_row,
+                VerticalAdapter.DrugViewHolder.class,
+                ref,getApplicationContext(), 1, productList);
+
+        recyclerView.setAdapter(verticalAdapter);
     }
 
     @Override
@@ -264,20 +304,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if(id == R.id.db_id ){
-            Toast.makeText(getApplicationContext(), "Clicked", Toast.LENGTH_SHORT).show();
-            drawerLayout.closeDrawers();
-            return true;
-        }
+        drawerLayout.closeDrawers();
         return false;
     }
 
-
-
-
-    public static class DrugViewHolder extends RecyclerView.ViewHolder{
+    public static class UpperViewHolder extends RecyclerView.ViewHolder{
         View mView;
-        public DrugViewHolder(View itemView) {
+
+        public UpperViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
         }
