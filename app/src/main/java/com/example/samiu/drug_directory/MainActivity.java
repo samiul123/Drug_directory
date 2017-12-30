@@ -3,6 +3,8 @@ package com.example.samiu.drug_directory;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -21,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DataSnapshot;
@@ -36,6 +39,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
+import java.sql.SQLClientInfoException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ArrayList<String> names = new ArrayList<>();
     MaterialSearchView materialSearchView;
     UpperHorizontalAdapter upperHorizontalAdapter;
+    public static SQLiteDatabase mySQLiteDb;
+    public static ArrayList<String> favList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,6 +113,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         searchResultsRef.keepSynced(true);
         //progress
         mDialogue = new ProgressDialog(this);
+
+        //SQLite db
+        mySQLiteDb = openOrCreateDatabase("favourite", MODE_PRIVATE, null);
+        mySQLiteDb.execSQL("CREATE TABLE IF NOT EXISTS myFavourite(id VARCHAR);");
+        //mySQLiteDb.execSQL("INSERT INTO myFavourite values('asd')");
+        Cursor result = mySQLiteDb.rawQuery("SELECT * FROM myFavourite", null);
+        favList = new ArrayList<>();
+        while(result.moveToNext()){
+            String id = result.getString(0);
+            //Toast.makeText(getApplicationContext(), id, Toast.LENGTH_SHORT).show();
+            favList.add(id);
+        }
+
 
         materialSearchView = findViewById(R.id.search_view_id);
         materialSearchView.setVoiceSearch(true);
@@ -226,37 +245,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         recyclerView.setAdapter(verticalAdapter);
     }
 
-    /*public void searchTradeResultShow(String key){
-        DatabaseReference result = searchResultsRef;
-        if(fireBaseRecyclerAdapter != null){
-            fireBaseRecyclerAdapter.cleanup();
-        }
-        fireBaseRecyclerAdapter = new FirebaseRecyclerAdapter<Drug, DrugViewHolder>(
-                Drug.class,
-                R.layout.durg_list_row,
-                DrugViewHolder.class,
-                result.orderByChild("id").equalTo(key)
-        ) {
-            @Override
-            protected void populateViewHolder(DrugViewHolder viewHolder, final Drug model, int position) {
-                viewHolder.setTradeName(model.getTradeName());
-                viewHolder.setGenericName(model.getGenericName());
-                viewHolder.setImage(getApplicationContext(), model.getImage());
-                viewHolder.mView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Toast.makeText(getApplicationContext(), "ID: " + model.getId(), Toast.LENGTH_SHORT).show();
-                        Intent detailIntent = new Intent(MainActivity.this, DetailsActivity.class);
-                        detailIntent.putExtra("drug_id", model.getId());
-                        startActivity(detailIntent);
-                    }
-                });
 
-            }
-        };
-        recyclerView.setAdapter(fireBaseRecyclerAdapter);
-    }
-*/
     @Override
     protected void onStart() {
         super.onStart();

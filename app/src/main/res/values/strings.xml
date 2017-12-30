@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Drug_directory</string>
+    <string name="app_name">Drug directory</string>
     <string name="intro">Hi i am your smart drug directory"\n"I can help you finding your urgent drug information</string>
     <string name="okayButton">Okay</string>
     <string name="meet">Have we met before?</string>
