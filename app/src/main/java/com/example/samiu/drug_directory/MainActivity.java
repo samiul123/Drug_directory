@@ -144,16 +144,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    public List<UpperView> fill_with_data() {
-
-        List<UpperView> data = new ArrayList<>();
-        data.add(new UpperView( R.drawable.a));
-        data.add(new UpperView( R.drawable.b));
-        data.add(new UpperView( R.drawable.c));
-        data.add(new UpperView( R.drawable.d));
-        data.add(new UpperView( R.drawable.e));
-        return data;
-    }
+//    public List<UpperView> fill_with_data() {
+//
+//        List<UpperView> data = new ArrayList<>();
+//        data.add(new UpperView( R.drawable.a));
+//        data.add(new UpperView( R.drawable.b));
+//        data.add(new UpperView( R.drawable.c));
+//        data.add(new UpperView( R.drawable.d));
+//        data.add(new UpperView( R.drawable.e));
+//        return data;
+//    }
 
 
     private void collectNames(Map<String, Object> value) {
@@ -255,6 +255,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void recyclerViewShow(final DatabaseReference ref){
+        if(verticalAdapter != null){
+            verticalAdapter.cleanup();
+        }
 
         verticalAdapter = new VerticalAdapter(Drug.class,
                 R.layout.durg_list_row,
@@ -293,6 +296,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+        if(id == R.id.nav_viewProducts){
+            recyclerViewShow(mDatabase);
+            drawerLayout.closeDrawers();
+            return true;
+        }
+        else if(id == R.id.nav_my_fav){
+            Query query = mDatabase.orderByChild("isFavourite").equalTo("true");
+            searchGenericResultShow(query);
+            drawerLayout.closeDrawers();
+            return true;
+        }
         drawerLayout.closeDrawers();
         return false;
     }
