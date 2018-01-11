@@ -44,7 +44,13 @@
         </android.support.v7.widget.RecyclerView>
 
     </LinearLayout>
-
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:text="textView"
+        android:id="@+id/noResultId"
+        android:visibility="gone"/>
 
     <include layout="@layout/search_layout"/>
     <android.support.design.widget.NavigationView

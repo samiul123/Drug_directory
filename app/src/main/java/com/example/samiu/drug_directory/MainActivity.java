@@ -34,6 +34,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DatabaseReference mDatabase;
     private DatabaseReference suggestionRef;
     private DatabaseReference searchResultsRef;
-    private RecyclerView recyclerView;
+    public static RecyclerView recyclerView;
     private RecyclerView horizontal_recycler_view;
     public static ProgressDialog mDialogue;
     ArrayList<String> tradeNames = new ArrayList<>();
@@ -60,13 +61,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public ActionBarDrawerToggle toogle;
     public NavigationView navView;
     Toolbar toolbar;
+    TextView noResults;
     private List<UpperView> data;
     VerticalAdapter verticalAdapter;
+    DatabaseReference fav_data;
     ArrayList<String> names = new ArrayList<>();
     MaterialSearchView materialSearchView;
     UpperHorizontalAdapter upperHorizontalAdapter;
     public static SQLiteDatabase mySQLiteDb;
     public static ArrayList<String> favList;
+    public static String deviceToken;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-
+        noResults = findViewById(R.id.noResultId);
         /*horizontal_recycler_view = findViewById(R.id.upper_recycler_view);
         horizontal_recycler_view.setHasFixedSize(true);
         horizontal_recycler_view.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -88,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         upperHorizontalAdapter = new UpperHorizontalAdapter(data, getApplicationContext());
         horizontal_recycler_view.setAdapter(upperHorizontalAdapter);
 */
-
+        deviceToken  = FirebaseInstanceId.getInstance().getToken();
         ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams) recyclerView.getLayoutParams();
         marginLayoutParams.setMargins(0, 80, 0, 0);
         recyclerView.setLayoutParams(marginLayoutParams);
@@ -116,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //SQLite db
         mySQLiteDb = openOrCreateDatabase("favourite", MODE_PRIVATE, null);
-        mySQLiteDb.execSQL("CREATE TABLE IF NOT EXISTS myFavourite(id VARCHAR);");
+        mySQLiteDb.execSQL("CREATE TABLE IF NOT EXISTS myFavourite(id VARCHAR, genericName VARCHAR, companyName VARCHAR, tradeName VARCHAR);");
         //mySQLiteDb.execSQL("INSERT INTO myFavourite values('asd')");
         Cursor result = mySQLiteDb.rawQuery("SELECT * FROM myFavourite", null);
         favList = new ArrayList<>();
@@ -126,7 +130,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             favList.add(id);
         }
 
+/*        fav_data = FirebaseDatabase.getInstance().getReference().child("Fav_data").child(deviceToken);
+//        String deviceToken = FirebaseInstanceId.getInstance().getToken();
 
+        fav_data.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot child: dataSnapshot.getChildren()){
+                    System.out.println(child.getKey());
+                    for(DataSnapshot childOfChild: child.getChildren()){
+                        String key = childOfChild.getKey();
+                        String value = (String) childOfChild.getValue();
+                        System.out.println("in favList 1" + key +" " +  value);
+                        if(key.equals("drug_id")){
+                            favList.add(value);
+                            System.out.println("in favList: " + value);
+                        }
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        */
         materialSearchView = findViewById(R.id.search_view_id);
         materialSearchView.setVoiceSearch(true);
 
@@ -144,16 +174,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-//    public List<UpperView> fill_with_data() {
-//
-//        List<UpperView> data = new ArrayList<>();
-//        data.add(new UpperView( R.drawable.a));
-//        data.add(new UpperView( R.drawable.b));
-//        data.add(new UpperView( R.drawable.c));
-//        data.add(new UpperView( R.drawable.d));
-//        data.add(new UpperView( R.drawable.e));
-//        return data;
-//    }
 
 
     private void collectNames(Map<String, Object> value) {
@@ -203,15 +223,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     for(Drug drug: productList){
                         if(drug.getTradeName().equals(query)){
                             gen_name = drug.getGenericName();
-                            Query query1 = searchResultsRef.orderByChild("genericName").equalTo(gen_name);
-                            searchGenericResultShow(query1);
+                            final Query query1 = searchResultsRef.orderByChild("genericName").equalTo(gen_name);
+                            query1.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    if(dataSnapshot.getValue() != null){
+                                        noResults.setVisibility(View.GONE);
+                                        searchGenericResultShow(query1);
+                                    }
+                                    else{
+                                        noResults.setVisibility(View.VISIBLE);
+                                        noResults.setText("No results found!");
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
                         }
                     }
                 }
 
                 else if(genericNames.contains(query)){
-                    Query query1 = searchResultsRef.orderByChild("genericName").equalTo(query);
-                    searchGenericResultShow(query1);
+                    final Query query1 = searchResultsRef.orderByChild("genericName").equalTo(query);
+                    query1.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.getValue() != null){
+                                noResults.setVisibility(View.GONE);
+                                searchGenericResultShow(query1);
+                            }
+                            else{
+                                noResults.setVisibility(View.VISIBLE);
+                                noResults.setText("No results found!");
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
                 }
                 return false;
             }
@@ -302,8 +357,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return true;
         }
         else if(id == R.id.nav_my_fav){
-            Query query = mDatabase.orderByChild("isFavourite").equalTo("true");
-            searchGenericResultShow(query);
+//            final Query query = mDatabase.orderByChild("isFavourite").equalTo("true");
+//            query.addValueEventListener(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(DataSnapshot dataSnapshot) {
+//                    if(dataSnapshot.getValue() != null){
+//                        noResults.setVisibility(View.GONE);
+//                        searchGenericResultShow(query);
+//                    }
+//                    else{
+//                        noResults.setVisibility(View.VISIBLE);
+//                        noResults.setText("No results found!");
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(DatabaseError databaseError) {
+//
+//                }
+//            });
+            ArrayList<Drug> drugList = new ArrayList<>();
+            String query = "SELECT * FROM myFavourite;" ;
+            Cursor cursor = MainActivity.mySQLiteDb.rawQuery(query,null);
+            if(cursor == null){
+                noResults.setVisibility(View.VISIBLE);
+                noResults.setText("No similar favourites found!");
+            }
+            else{
+                while (cursor.moveToNext()){
+                    String drud_id = cursor.getString(0);
+                    String genName = cursor.getString(1);
+                    String comName = cursor.getString(2);
+                    String trade = cursor.getString(3);
+                    drugList.add(new Drug(trade,genName,drud_id,comName));
+                }
+                verticalAdapter = null;
+                CustomAdapter customAdapter = new CustomAdapter(getApplicationContext(), drugList, 0);
+                recyclerView.setAdapter(customAdapter);
+            }
             drawerLayout.closeDrawers();
             return true;
         }
