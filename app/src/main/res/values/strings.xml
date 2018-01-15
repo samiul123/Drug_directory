@@ -31,4 +31,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="about">You can view different drugs along with details."\n"You can search by generic names and trade names."\n"You can calculate drugs dosage also."\n"And lastly, this app has favourite options also to store your favourite drugs</string>
+    <string name="contact">Developed by:"\n"Samiul Mushfik"\n"BUET CSE 14"\n"email id:samiulmushfik123@gmail.com"\n\n"Kaykobad Reza"\n"BUET CSE 14"\n"email id:kaykobadreza@gmail.com</string>
+
 </resources>

@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public ActionBarDrawerToggle toogle;
     public NavigationView navView;
     Toolbar toolbar;
-    TextView noResults;
+    public static TextView noResults;
     private List<UpperView> data;
     VerticalAdapter verticalAdapter;
     DatabaseReference fav_data;
@@ -120,9 +120,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //SQLite db
         mySQLiteDb = openOrCreateDatabase("favourite", MODE_PRIVATE, null);
-        mySQLiteDb.execSQL("CREATE TABLE IF NOT EXISTS myFavourite(id VARCHAR, genericName VARCHAR, companyName VARCHAR, tradeName VARCHAR);");
+        mySQLiteDb.execSQL("CREATE TABLE IF NOT EXISTS myFavouriteH(id VARCHAR, genericName VARCHAR, companyName VARCHAR, tradeName VARCHAR);");
         //mySQLiteDb.execSQL("INSERT INTO myFavourite values('asd')");
-        Cursor result = mySQLiteDb.rawQuery("SELECT * FROM myFavourite", null);
+        Cursor result = mySQLiteDb.rawQuery("SELECT * FROM myFavouriteH", null);
         favList = new ArrayList<>();
         while(result.moveToNext()){
             String id = result.getString(0);
@@ -208,7 +208,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        verticalAdapter.cleanup();
+        if(verticalAdapter != null){
+            verticalAdapter.cleanup();
+        }
+
     }
 
     private void searchViewCode() {
@@ -268,6 +271,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         }
                     });
                 }
+                else{
+                    recyclerView.setAdapter(null);
+                    noResults.setVisibility(View.VISIBLE);
+                    noResults.setText("No results found!");
+                }
                 return false;
             }
 
@@ -304,22 +312,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onStart() {
         super.onStart();
-        //mDialogue.setMessage("Please wait...");
-        //mDialogue.show();
+        mDialogue.setMessage("Please wait...");
+        mDialogue.show();
         recyclerViewShow(mDatabase);
     }
 
     public void recyclerViewShow(final DatabaseReference ref){
+//        mDialogue.setMessage("Please wait...");
+//        mDialogue.show();
         if(verticalAdapter != null){
             verticalAdapter.cleanup();
         }
-
+//        mDialogue.dismiss();
         verticalAdapter = new VerticalAdapter(Drug.class,
                 R.layout.durg_list_row,
                 VerticalAdapter.DrugViewHolder.class,
                 ref,getApplicationContext(), 1, productList);
 
         recyclerView.setAdapter(verticalAdapter);
+
     }
 
     @Override
@@ -352,6 +363,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.nav_viewProducts){
+            noResults.setVisibility(View.GONE);
             recyclerViewShow(mDatabase);
             drawerLayout.closeDrawers();
             return true;
@@ -376,12 +388,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //
 //                }
 //            });
+//            verticalAdapter.cleanup();
             ArrayList<Drug> drugList = new ArrayList<>();
-            String query = "SELECT * FROM myFavourite;" ;
+            String query = "SELECT * FROM myFavouriteH;" ;
             Cursor cursor = MainActivity.mySQLiteDb.rawQuery(query,null);
-            if(cursor == null){
+            if(cursor.getCount() == 0){
+                recyclerView.setAdapter(null);
                 noResults.setVisibility(View.VISIBLE);
-                noResults.setText("No similar favourites found!");
+                noResults.setText("No favourites found!");
             }
             else{
                 while (cursor.moveToNext()){
@@ -395,6 +409,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 CustomAdapter customAdapter = new CustomAdapter(getApplicationContext(), drugList, 0);
                 recyclerView.setAdapter(customAdapter);
             }
+            drawerLayout.closeDrawers();
+            return true;
+        }
+        else if(id == R.id.nav_about){
+            Intent aboutIntent = new Intent(MainActivity.this, AboutActivity.class);
+            startActivity(aboutIntent);
+            drawerLayout.closeDrawers();
+            return true;
+        }
+        else if(id == R.id.nav_contact){
+            Intent contactIntent = new Intent(MainActivity.this, ContactActivity.class);
+            startActivity(contactIntent);
             drawerLayout.closeDrawers();
             return true;
         }
@@ -448,6 +474,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else{
             super.onBackPressed();
+            this.finish();
         }
     }
 }
