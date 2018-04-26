@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
+	<script>
+	  // Initialize Firebase
+	  var config = {
+	    apiKey: "AIzaSyBY11Skj5lPAnDqDK4ByVC6lSs7zpggHB8",
+	    authDomain: "drugdirectory-8e44c.firebaseapp.com",
+	    databaseURL: "https://drugdirectory-8e44c.firebaseio.com",
+	    projectId: "drugdirectory-8e44c",
+	    storageBucket: "drugdirectory-8e44c.appspot.com",
+	    messagingSenderId: "37203525977"
+	  };
+	  firebase.initializeApp(config);
+	</script>
+</head>
+<body>
+	<table>
+		<tr>
+			<td>Id: </td>
+			<td><input type="text" name="id" id="user_id"/></td>
+		</tr>
+		<tr>
+			<td>User Name: </td>
+			<td><input type="text" name="user_name" id="user_name"/></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<input type="button" value="Save" onclick="save_user()"/>
+				<input type="button" value="Update" onclick="update_user()"/>
+				<input type="button" value="Delete" onclick="delete_user()"/>
+			</td>
+			
+		</tr>	
+	</table>
+
+	<h3>Users list</h3>
+
+	<table id="tbl_users_list">
+		<tr>
+			<td>ID</td>
+			<td>NAME</td>
+		</tr>
+	</table>
+
+	<script type="text/javascript">
+		
+		var tb1users = document.getElementById('tbl_users_list');
+		var databaseRef = firebase.databaseRef().ref('users/');
+		var user_name = document.getElementById('user_name').value;
+		var user_id = document.getElementById('user_id').value;
+
+		function save_user() {
+			var uid =  firebase.databaseRef().ref().child('users').push().key;
+			var data = {
+				user_id: uid,
+				user_name: user_name
+			}	
+
+			var updates
+		}
+
+		function update_user() {
+			
+		}
+
+		function delete_user() {
+			
+		}
+
+		function reload_page() {
+			
+		}
+
+	</script>
+</body>
+</html>

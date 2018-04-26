@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "441931543593",
+    "firebase_url": "https://drug-directory-6ba89.firebaseio.com",
+    "project_id": "drug-directory-6ba89",
+    "storage_bucket": "drug-directory-6ba89.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:441931543593:android:6ed46d5dc1a32f61",
+        "android_client_info": {
+          "package_name": "com.example.samiu.drug_directory"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "441931543593-sjrkskf27iiigqrkupc45bgua0e66nnc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGjjtiA_pY2MBPVngL9hmvjYdubwAoaEU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

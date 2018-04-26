@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_details"
+        android:icon="@drawable/ic_details_black_24dp"
+        android:title="Details" />
+
+    <item
+        android:id="@+id/navigation_similar"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="Similar medicine" />
+
+    <item
+        android:id="@+id/calculate_dose"
+        android:icon="@drawable/ic_plus_one_black_24dp"
+        android:title="Calculate dose"/>
+
+    <item
+        android:id="@+id/similar_fav"
+        android:icon="@drawable/ic_favorite_black_24dp"
+        android:title="Similar favourites"/>
+
+</menu>

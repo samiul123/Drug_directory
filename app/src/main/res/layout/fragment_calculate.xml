@@ -1,0 +1,97 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    tools:context="com.example.samiu.drug_directory.CalculateFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/gName_id"
+        android:layout_marginTop="50dp"
+        android:text="test"
+        android:textSize="22sp"
+        android:textAlignment="center"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="140dp"
+        android:orientation="vertical">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ageTextView_id"/>
+
+        <EditText
+            android:id="@+id/ageId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Age(yrs)"/>
+
+
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/heightTextView_id"/>
+
+        <EditText
+            android:id="@+id/heightId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Height(inch)"/>
+
+
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/weightTextView_id"/>
+
+        <EditText
+            android:id="@+id/weightId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Weight(kg)"/>
+
+
+
+
+        <Button
+            android:id="@+id/calculateButtonID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/loginbuttonbg"
+            android:text="calculate dose"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="25dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Result: "/>
+
+            <TextView
+                android:id="@+id/resultId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+
+</FrameLayout>
